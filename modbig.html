@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<head>
+	<title>Магия остатков</title>
+    <meta name="description" content="Сайт, рисующий магия">
+    <meta name="author" content="Vasa">	
+    <link rel="icon" type="image/png" href="mod.png"/>
+</head>
+
+<body>
+
+	<style>
+		div{
+			width: 250px;
+			height: 260px;
+			margin: 20px;
+			text-align: center;	
+		}
+		.main{
+			width: 800px;
+			height: 650px;
+			background-color: rgb(255, 255, 255);
+		}
+		.picture{
+			width: 600px;
+			height: 600px;
+			margin: 10px;
+			background-color: rgb(255, 255, 255);
+			border: 4px solid rgb(0, 0, 0);
+		}
+		.rigth-panel{
+			width: 200px;
+			height: 500px;
+			position: relative;
+			left: 600px;
+			top: -500px;
+		}
+		.buttons{
+			position: relative;
+			left: 0px;
+			top: 0px;
+			background-color: rgb(255, 255, 255);
+		}
+		
+	</style>
+
+	<div class="main">
+		<div class="picture"  mouseover = "checkLinePointer(event);">
+			<canvas id="draw" width="600" height="600">
+				Этот элемент не поддерживается
+			</canvas>
+		</div>
+
+		<div class="rigth-panel" id ="rigth-panel">
+
+			<div class="buttons">
+				n <input type="number" id = "n" min = "1" max = "100000" value="8"> <br><br>
+				Цвет от <input type="color" id = "color-begin" value="#00ffff"> до 
+				<input type="color" id = "color-end" value="#0000ff"><br><br>
+				Фон <input type="color" id = "fone"><br><br>
+				<input type="button" onclick="create()" value="Создать">
+
+			</div>
+		</div>
+	</div>
+	<script>
+		
+
+		function create()
+		{
+			var n = Number(document.getElementById('n').value);
+			
+			var cb = document.getElementById('color-begin').value;
+			var ce = document.getElementById('color-end').value;
+			var cf = (document.getElementById('fone').value);
+
+			cbn = getColor(cb);
+			cen = getColor(ce);
+
+			var k = 180;
+			var dr = (cen[0] - cbn[0])/k;
+			var dg = (cen[1] - cbn[1])/k;
+			var db = (cen[2] - cbn[2])/k;
+
+			var canvas = document.getElementById("draw"), 
+                context = canvas.getContext("2d");
+            context.beginPath();	          
+			context.rect(0, 0, 600, 600);
+			context.fillStyle = cf;
+			context.fill();
+			context.stroke();
+
+			md(300, 300, n, cbn[0], cbn[1], cbn[2], dr, dg, db);
+		}
+
+		function getColor(c)
+		{
+			var r, g, b;
+			r = parseInt('0x' + c[1] + c[2], 16);
+			g = parseInt('0x' + c[3] + c[4], 16);
+			b = parseInt('0x' + c[5] + c[6], 16);
+			return [r, g, b];
+		}
+
+		function line(context, x1, y1, x2, y2, width, color)
+		{
+			context.beginPath(); 
+			context.lineWidth = width;
+			context.strokeStyle = color;
+
+          	context.moveTo(x1, y1);
+          	context.lineTo(x2, y2);
+
+			context.stroke();
+		}
+
+		function md(x, y, n, r, g, b, dr, dg, db)
+		{
+			var canvas = document.getElementById("draw"), 
+            context = canvas.getContext("2d");
+
+            const k = 360;
+            const rd = 280;
+            const d = 2;
+
+			for (var i = 0; i < k*d; i++) 
+			{
+				var col = "rgb(" + Math.round((r + i*dr/d)) + ", " + Math.round((g + i*dg/d)) + "," + Math.round((b + i*db/d)) + ")";
+				if (i >= d*k/2) 
+					col = "rgb(" + Math.round((r + (360-i)*dr/d)) + ", " + Math.round((g + (360-i)*dg/d)) + "," + Math.round((b + (360-i)*db/d)) + ")";	
+				line(context,
+					x+rx(rd, i/d),   y+ry(rd, i/d),
+					x+rx(rd, n*i/d), y+ry(rd, n*i/d),
+					1, col);
+			}
+		}
+
+
+		function rx(l, a)
+		{
+			return l*Math.cos(a*Math.PI/180);			
+		}
+		function ry(l, a)
+		{
+			return l*Math.sin(a*Math.PI/180);			
+		}
+
+		function Rand(min, max)
+		{
+			var d = max - min;
+			return Number((max - d*Math.random()).toFixed(2));
+ 		}
+
+	</script>
+</body>

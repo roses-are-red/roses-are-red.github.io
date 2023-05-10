@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<head>
+	<title>Рой</title>
+    <meta name="description" content="Сайт, рисующий рой">
+    <meta name="author" content="Vasa">	
+    <link rel="icon" type="image/png" href="mod.png"/>
+</head>
+ 
+<body>
+	<style>
+		.main{
+			display: grid;
+			grid-template-columns: 2fr 1fr 2fr;
+		}
+		div{
+			padding: 2px;
+		}
+	</style>
+
+	<div class="main" >
+		<div class="picture"  onclick = "checkLinePointer(event);">
+			<canvas id="draw" width="600" height="600">
+				Этот элемент не поддерживается
+			</canvas>
+		</div>
+		<div>
+			
+			<div>
+				<div>Размер <input type="number" id="n" value="100" min="3" max="1000" /></div>
+				<div>Центр X <input type="number" id="x" value="0" min="-3" max="3" /></div>
+				<div>Центр Y <input type="number" id="y" value="0" min="-3" max="3" /></div>
+				<div><input type="submit" value="Создать" onclick="begin();" /></div>
+			</div>
+			<!--
+			<div><input type="submit" value="Ход" onclick="nextStep();" /></div>
+			<div><input type="submit" value="Поехали" onclick="run();" /></div>
+			<div><input type="submit" value="Стопэ" onclick="stop();" /></div>
+			
+			<div id = "plant"> 
+				<div>Синие</div>
+				<div>Меньше 
+					<input type="number" min="0" max="8" id="maxPlant" value="6" onchange="changeGoals('maxPlant', 'plant', 'maxPlant')" /> </div>
+				<div> и больше 
+					<input type="number" min="0" max="8" id="minPlant" value="2" onchange="changeGoals('minPlant', 'plant', 'minPlant')" /> синих</div>
+				<div>Меньше 
+					<input type="number" min="0" max="8" id="maxPlantRed" value="6" onchange="changeGoals('maxPlantRed', 'plant', 'maxPlantRed')" />  </div>
+				<div> и больше 
+					<input type="number" min="0" max="8" id="minPlantRed" value="2" onchange="changeGoals('minPlantRed', 'plant', 'minPlantRed')" /> красных</div>
+				</div>
+			</div>
+			
+			<div id = "plantRed"> 
+				<div>Красные</div>
+				<div>Меньше 
+					<input type="number" min="0" max="8" id="maxPlantR" value="6" onchange="changeGoals('maxPlantR', 'plantRed', 'maxPlant')" /> </div>
+				<div> и больше 
+					<input type="number" min="0" max="8" id="minPlantR" value="2" onchange="changeGoals('minPlantR', 'plantRed', 'minPlant')" /> синих</div>
+				<div>Меньше 
+					<input type="number" min="0" max="8" id="maxPlantRedR" value="6" onchange="changeGoals('maxPlantRedR', 'plantRed', 'maxPlantRed')" />  </div>
+				<div> и больше 
+					<input type="number" min="0" max="8" id="minPlantRedR" value="2" onchange="changeGoals('minPlantRedR', 'plantRed', 'minPlantRed')" /> красных</div>
+				</div>
+			</div>
+			-->
+		</div>
+	</div>
+	
+	<script>
+		
+		const begin = () => {
+			let nValue = document.getElementById('n').value;
+			if (Number(nValue) == NaN){
+				nValue = 100
+			}
+			else {
+				nValue = Number(nValue)
+				if (nValue < 3) nValue = 3;
+			}
+			r = nValue;
+			
+			draw();
+		}
+
+		const size = 600;
+
+		const centerX = 400;
+		const centerY = 300;
+
+		let r = 100;
+		function Rand(min, max)
+		{
+			let d = max - min;
+			return max - d*Math.random();
+		}
+
+		const RandInt = (min, max) => Rand(min, max) >> 0
+
+ 		//create();
+			
+    	async function rect(context, x1, y1, x2, y2, color)
+		{
+			context.fillStyle  = color;
+			context.fillRect(x1, y1, x2, y2);
+		}
+
+		function line(context, x1, y1, x2, y2, width, color)
+		{
+			context.beginPath(); 
+			context.lineWidth = width;
+			context.strokeStyle = color;
+
+          	context.moveTo(x1, y1);
+          	context.lineTo(x2, y2);
+
+			context.stroke();
+		}
+
+		const cntI = (x, y) => {
+			return {i : x*x - y*y, j : 2 * x * y}
+		}
+
+		const mander = (i, j) => {
+			let z = { z : { i : 0 , j : 0 }, c : { i , j } }
+			
+			for (let k = 0; k < 4000; k++){
+				z.z = cntI(z.z.i, z.z.j)
+		
+				z.z.i += z.c.i;
+				z.z.j += z.c.j;
+				if (Math.abs( z.z.i ) >= 10) return false;
+			}
+
+			return Math.abs( z.z.i ) < 10;
+		}
+
+		function draw(arr, drawing = true)
+		{
+			let canvas = document.getElementById("draw"), 
+            context = canvas.getContext("2d", { alpha: false });
+			
+			rect(context, 0, 0, size, size, '#000000');
+
+			let x = document.getElementById('x').value;
+			let y = document.getElementById('y').value;
+
+			let d = 1/r;
+			//let d = 0.01;
+
+			for (let i = -3 ; i < 1 ; i += d){
+				for (let j = -3 ; j < 3; j += d){
+					if ( mander(i, j) ) {
+						
+						let x1 = centerX + r * i + x * r; 
+						let x2 = centerX + r * i + 1 + x * r;
+						
+						let y1 = centerY + r * j + y * r;
+						let y2 = centerY + r * j + y * r;
+						
+						line(context, x1, y1, x2, y2, 1, '#0000ff' )
+					}
+				}
+			}
+
+		}
+
+		begin();
+
+
+	</script>
+</body>

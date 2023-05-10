@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<head>
+	<title>Розы красивы, но ты красивей</title>
+    <meta name="description" content="Сайт, рисующий розы">
+    <meta name="author" content="Vasa">	
+    <link rel="icon" type="image/png" href="rose.png"/>
+</head>
+
+<body>
+
+	<style>
+		.main{
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+		}
+		.picture{
+			width: 600px;
+			height: 600px;
+			margin: 10px;
+			background-color: rgb(255, 255, 255);
+			border: 4px solid rgb(0, 0, 0);
+		}
+		.rigth-panel{
+			width: 200px;
+			height: 500px;
+			position: relative;
+		}
+		.buttons{
+			position: relative;
+			left: 0px;
+			top: 0px;
+			background-color: rgb(255, 255, 255);
+		}
+		
+	</style>
+
+	<div class="main">
+		<div class="picture" >
+			<canvas id="draw" width="600" height="600" onclick="checkLinePointer(event)" onmousemove="checkLinePointer(event)">
+				Этот элемент не поддерживается
+			</canvas>
+		</div>
+
+		<div class="rigth-panel" id ="rigth-panel">
+			<div class="buttons">
+				<div> Стороны <input type="number" id = "a1" min = "2" max = "360" value="6"></div>
+				<div> Линии <input type="color" id = "line" value="#0000ff"></div>
+				<div> Фон <input type="color" id = "fone" value="#000000"></div>
+				<div><input type="button" onclick="create()" value="Секторы"></div>
+				<div><input type="button" onclick="save()" value="Просмотр"></div>
+				<div><input type="checkbox" id = "drawingMove">
+				<label for="drawingMove">Рисовать движением</label> </div>
+			</div>
+		</div>
+	</div>
+	<script>
+		
+		const path = '';
+
+		const size = 600;
+		const cX = size/2;
+		const cY = size/2;
+		const k = 180;
+
+		let arr = [];
+
+		const checkLinePointer = (event) => {
+			let drawingMove = (document.getElementById('drawingMove').checked);
+			if (drawingMove){
+				let a = 360/(document.getElementById('a1').value);
+				let color = (document.getElementById('line').value);
+				let x = event.layerX - cX;
+				let y = cY - event.layerY ;
+				
+				let a1 = a;
+				let a2 = 2*a;
+
+				let r = Math.pow(x*x + y*y, 1/2);
+				let angle = 180 * Math.acos(x / r) / Math.PI;
+				
+				if (y < 0) angle = -angle
+
+				//if (angle > a1 && angle < a2){
+					arr[arr.length] = {angle, r, color}
+					draw(a)
+				//}
+			}
+		}
+
+		function create()
+		{
+			arr = [];
+			var a = Number(document.getElementById('a1').value);
+
+			drawBorder(360/a);
+		}
+
+		function getColor(c)
+		{
+			var r, g, b;
+			r = parseInt('0x' + c[1] + c[2], 16);
+			g = parseInt('0x' + c[3] + c[4], 16);
+			b = parseInt('0x' + c[5] + c[6], 16);
+			return [r, g, b];
+		}
+
+		function line(context, x1, y1, x2, y2, width, color)
+		{
+			context.beginPath(); 
+			context.lineWidth = width;
+			context.strokeStyle = color;
+
+          	context.moveTo(x1, y1);
+          	context.lineTo(x2, y2);
+
+			context.stroke();
+		}
+
+		function drawBorder(a) {			
+			var canvas = document.getElementById("draw"), 
+            context = canvas.getContext("2d");
+			
+			//var cf = (document.getElementById('fone').value);
+			var cf  = '#ffffff';
+
+            context.beginPath();	          
+			context.rect(0, 0, size, size);
+			context.fillStyle = cf;
+			context.fill();
+			context.stroke();
+
+			for (var i = 1; i <= 360 / a; i++) 
+			line(context, cX, cY, cX + x(size, i * a), cY - y(size, i * a), 2, '#000000');
+		}
+
+		function draw(a)
+		{
+			var canvas = document.getElementById("draw"), 
+            context = canvas.getContext("2d");
+
+			var cf = (document.getElementById('fone').value);
+		
+            context.beginPath();	          
+			context.rect(0, 0, size, size);
+			context.fillStyle = cf;
+			context.fill();
+			context.stroke();
+
+			line(context, cX, cY, cX + x(size, a), cY - y(size, a), 2, '#000000');
+			line(context, cX, cY, cX + x(size, 2*a), cY - y(size, 2*a), 2, '#000000');
+
+			for (var i = 1; i <= 360 / a; i++) 
+			{
+				arr.forEach(el => {
+					line(context,
+						cX + x(el.r, - el.angle + a * i), cY + y(el.r, - el.angle + a * i), 
+						cX + x(0, a*(i+1)), cY + y(0, a*(i+1)), 					
+						1, el.color);
+				})
+			}
+		}
+
+		function x(r, a)
+		{
+			return r * Math.cos(Math.PI * a / k);
+		}
+
+		function y(r, a)
+		{
+			return r * Math.sin(Math.PI * a / k);
+		}
+
+		function ra(r, a)
+		{
+			return Math.abs(r*Math.cos(Math.PI*a));
+		}
+
+		function Rand(min, max)
+		{
+			var d = max - min;
+			return Number((max - d*Math.random()).toFixed(2));
+ 		}
+
+	</script>
+</body>

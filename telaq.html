@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<head>
+	<title>Тела</title>
+    <meta name="description" content="Сайт, рисующий тела">
+    <meta name="author" content="Vasa">	
+    <link rel="icon" type="image/png" href="mod.png"/>
+</head>
+ 
+<body>
+	<style>
+		.main{
+			display: grid;
+			grid-template-columns: 2fr 1fr;
+		}
+		div{
+			padding: 2px;
+		}
+		.tableValues{
+			display: grid;
+			grid-template-columns: repeat(8, 1fr);
+		}
+	</style>
+
+	<div class="main" >
+		<div class="picture"  onclick = "checkLinePointer(event);">
+			<canvas id="draw" width="800" height="800">
+				Этот элемент не поддерживается
+			</canvas>
+		</div>
+		<div>
+			<!--			
+			<div>
+				<div>Размер <input type="number" id="n" value="50" min="50" max="600" /></div>
+				<div><input type="submit" value="Создать" onclick="begin();" /></div>
+			</div>
+			-->
+			<div><input type="submit" value="Ход" onclick="nextStep();" /></div>
+			<div><input type="submit" value="Поехали" onclick="run();" /></div>
+			<div><input type="submit" value="Стопэ" onclick="stop();" /></div>
+
+			<div>Центр х <input type="number" id="cX" value="0" min = "-10000" max="10000" oninput="changeView()" /></div>
+			<div>Центр y <input type="number" id="cY" value="0" min = "-10000" max="10000" oninput="changeView()" /></div>
+			<div>Масштаб <input type="number" id="scale" value="0.5" min = "0" max="1000" oninput="changeView()" /></div>
+			
+			<div><input type="submit" value="Добавить" onclick="add()"></div>	
+			<div class="tableValues" id="tableValues">
+
+			</div>
+
+		</div>
+	</div>
+	
+	<script>
+		
+		const changeView = () => {
+			let newCX = document.getElementById('cX').value;
+			let newCY = document.getElementById('cY').value;
+			let newScale = document.getElementById('scale').value;
+
+			if (!isNaN(newCX)) cX = Number(newCX)
+			if (!isNaN(newCY)) cY = Number(newCY)
+			if (!isNaN(newScale) && newScale > 0) scale = Number(newScale)
+
+			draw(arr);
+		}
+
+		const changeData = (e, i, field) => {
+			let value = e.target.value;
+			if (isNaN(value) && field != 'color') {
+				printData();
+				return false
+			}
+
+			if (field == 'm') arr[i].m = Number(value)
+			if (field == 'q') arr[i].q = Number(value)
+			if (field == 'r') arr[i].r = Number(value)
+			if (field == 'vx') arr[i].v.x = Number(value)
+			if (field == 'vy') arr[i].v.y = Number(value)
+			if (field == 'Sx') arr[i].S.x = Number(value)
+			if (field == 'Sy') arr[i].S.y = Number(value)
+			if (field == 'color') arr[i].color = getColor(value)
+
+			draw(arr)
+		} 
+
+		function getColor(c)
+		{
+			let r, g, b;
+			r = parseInt('0x' + c[1] + c[2], 16);
+			g = parseInt('0x' + c[3] + c[4], 16);
+			b = parseInt('0x' + c[5] + c[6], 16);
+			return {r, g, b};
+		}
+
+		const getNumber16 = (n) => {
+			return n < 10 ? '0' + n.toString(16) : n.toString(16)
+		}
+
+		function getColor16(c)
+		{
+			return '#' + getNumber16(c.r.toString(16)) + getNumber16(c.g.toString(16)) + getNumber16(c.b.toString(16));
+		}
+
+		const add = () => {
+			arr.push({ m : 100, r : 10, v : {x : -5.5, y : 0}, S :  {x : 400, y : 100}, q : 1,
+			color : { r : RandInt(0, 255), g :  RandInt(0, 255), b :  RandInt(0, 255) } , history : [] },)
+			printData();
+			draw(arr);
+		}
+
+		const printData = () => {
+			let str = ['Масса', 'Заряд', 'Радиус', 'Скорость по х', 'Скорость по у', 'Координаты х', 'Координаты у', 'Цвет'].reduce( (r, x) => 
+			r + `
+			<div class="tableHead">
+				${x}
+			</div>
+			`, '')
+
+			str += arr.reduce( (r, x, i) => r + `
+			<div class="tableBody"><input type="number" value="${x.m}" oninput="changeData(event, ${i}, 'm')"></div>
+			<div class="tableBody"><input type="number" value="${x.q}" oninput="changeData(event, ${i}, 'q')"></div>
+			<div class="tableBody"><input type="number" value="${x.r}" oninput="changeData(event, ${i}, 'r')"></div>
+			<div class="tableBody"><input type="number" id="vx${i}" value="${x.v.x}" oninput="changeData(event, ${i}, 'vx')"></div>
+			<div class="tableBody"><input type="number" id="vy${i}" value="${x.v.y}" oninput="changeData(event, ${i}, 'vy')"></div>
+			<div class="tableBody"><input type="number" id="Sx${i}" value="${x.S.x}" oninput="changeData(event, ${i}, 'Sx')"></div>
+			<div class="tableBody"><input type="number" id="Sy${i}" value="${x.S.y}" oninput="changeData(event, ${i}, 'Sy')"></div>
+			<div class="tableBody"><input type="color" value="${getColor16(x.color)}" oninput="changeData(event, ${i}, 'color')"></div>
+			`, '') 
+
+			let info = document.getElementById("tableValues")
+
+			info.innerHTML = str;
+		} 
+
+        function create()
+		{
+
+
+			arr = [ 
+				{ m : 10000, r : 20, v : {x : 0, y : 0}, S :  {x : 400, y : 400}, q : 1, color : { r : 255, g : 255, b : 0 }, history : [] },
+				{ m : 100, r : 5, v : {x : 0, y : 3.1}, S :  {x : 1410, y : 400}, q : -1, color : { r : 0, g : 255, b : 0 }, history : []  },
+				{ m : 1, r : 2, v : {x : 3.1, y : 0 }, S :  {x : 1410, y : 390}, q : 1, color : { r : 0, g : 255, b : 255 }, history : []  },
+				
+				//	{ m : 500, r : 10, v : {x : 0, y : 7}, S :  {x : 200, y : 400}, color : { r : 0, g : 255, b : 255 }, history : []  },
+				
+			/*	{ m : 10000, r : 20, v : {x : 0, y : 5}, S :  {x : 300, y : 300}, color : { r : 255, g : 255, b : 0 }  },
+				{ m : 10000, r : 20, v : {x : 0, y : -5}, S :  {x : 400, y : 300}, color : { r : 255, g : 255, b : 0 }  },
+				{ m : 100, r : 10, v : {x : 0, y : 9}, S :  {x : 100, y : 300}, color : { r : 0, g : 0, b : 255 } },
+				{ m : 100, r : 10, v : {x : 9, y : 0}, S :  {x : 350, y : 600}, color : { r : 0, g : 255, b : 255 }  },
+				{ m : 1, r : 10, v : {x : 7, y : 0}, S :  {x : 300, y : 500}, color : { r : 255, g : 0, b : 255 }  },
+				{ m : 1, r : 10, v : {x : -6, y : 0}, S :  {x : 300, y : 100}, color : { r : 130, g : 130, b : 255 }  },
+				{ m : 100, r : 10, v : {x : 0, y : 2}, S :  {x : 300, y : 100} },
+				{ m : 100, r : 10, v : {x : 0, y : 2}, S :  {x : 600, y : 600} },*/
+			 ]
+			
+			printData(arr)
+
+			draw(arr);
+		}
+
+		const begin = () => { /*
+			let nValue = document.getElementById('n').value;
+			if (Number(nValue) == NaN){
+				nValue = 100
+			}
+			else {
+				nValue = Number(nValue)
+				if (nValue < 50) nValue = 50;
+				if (nValue > 600) nValue = 600;
+			}
+			n = nValue;
+			m = n;
+			cell = Math.floor( size / n ); 
+			cntRiver = n / 15;
+
+			var canvas = document.getElementById("draw");  
+			canvas.width = n * cell;
+			canvas.height = m * cell;*/
+
+			create();
+		}
+
+		const checkLinePointer = (event) => {
+			let x = Math.floor(event.layerX / cell)
+			let y = Math.floor(event.layerY / cell)
+			console.log(n * x + y)
+			console.log(arr[n * x + y])
+		}
+
+		const size = 1700;
+
+		let n = 700;
+		let m = n;
+
+		let cell = size / n; 
+
+		let arr = [];
+		
+		let cX = 0;
+		let cY = 0;
+		
+		let scale = 0.5;
+
+		let years = []
+		let year = 0;
+
+		const G = 1;
+		const K = 9;
+
+		let newInterval = null;
+
+		const run = () => newInterval = newInterval == null ? setInterval(nextStep, 100) : newInterval
+		const stop = () => {clearInterval(newInterval); newInterval = null}
+
+		const newV = (obj, a) => {
+			let v = obj.v
+			v.x += a.x
+			v.y += a.y
+		}
+
+		const getR  = (S1, S2) => Math.sqrt( Math.pow(S1.x - S2.x, 2) +  Math.pow(S1.y - S2.y, 2) )
+		const getR2 = (S1, S2) => Math.pow(S1.x - S2.x, 2) +  Math.pow(S1.y - S2.y, 2)
+
+		const getA = (obj) => {
+			let x = 0;
+			let y = 0;
+			for (let i = 0; i < arr.length; i++) {
+				if (obj != arr[i]) {
+					let m = obj.m + arr[i].m
+					let S = {
+						x : (obj.m * obj.S.x  + arr[i].m * arr[i].S.x) / m,
+						y : (obj.m * obj.S.y  + arr[i].m * arr[i].S.y) / m
+					}
+					
+					let r2 = getR2(obj.S, arr[i].S)
+					r2 = r2 > 0 ? r2 : 0.001
+					let a = G * arr[i].m / r2 - K * obj.q * arr[i].q / r2 / obj.m;
+
+					let r = getR(obj.S, arr[i].S)
+					r = r > 0 ? r : 0.001
+
+					let dx = (S.x - obj.S.x)
+					let dy = (S.y - obj.S.y)
+
+					x += a * dx / r
+					y += a * dy / r
+					debugger
+				}
+			}
+			
+			return {x, y}
+		}
+
+		const setV = (v, i) => {
+			document.getElementById("vx" + i).value = v.x
+			document.getElementById("vy" + i).value = v.y
+		}
+
+		const setS = (S, i) => {
+			document.getElementById("Sx" + i).value = S.x
+			document.getElementById("Sy" + i).value = S.y
+		}
+
+		const nextStep = async (drawing = true) => {
+			
+			for (let i = 0; i < arr.length; i++) {
+				newV(arr[i], getA(arr[i]))
+			}
+
+			for (let i = 0; i < arr.length; i++) {
+ 				let obj = arr[i]
+				let S = obj.S
+				let v = obj.v
+				//S.x = (S.x + size + v.x) % size 
+				//S.y = (S.y + size + v.y) % size
+
+				S.x += v.x 
+				S.y += v.y
+				
+				arr[i].history.push({...S})
+
+				setV(v, i)
+				setS(S, i)
+			}
+
+			return draw(arr, drawing)
+		}
+
+		function Rand(min, max)
+		{
+			let d = max - min;
+			return max - d*Math.random();
+		}
+
+		const RandInt = (min, max) => Rand(min, max) >> 0
+
+ 		//create();
+			
+	const iterations = async (count) => {
+		for (let i = 0; i < count; i++){
+			await nextStep(false)
+		}
+		draw(arr)
+	}
+
+    async function rect(context, x1, y1, x2, y2, color)
+		{
+			context.fillStyle  = color;
+			context.fillRect(x1, y1, x2, y2);
+		}
+
+		
+		async function circle(context, x, y, r, color)
+		{
+			context.beginPath();
+			context.fillStyle  = color;
+			context.arc(x, y, r, 0, 2 * Math.PI);
+			context.fill();
+		}
+
+		function line(context, x1, y1, x2, y2, width, color)
+		{
+			context.beginPath(); 
+			context.lineWidth = width;
+			context.strokeStyle = color;
+
+          	context.moveTo(x1, y1);
+          	context.lineTo(x2, y2);
+
+			context.stroke();
+		}
+
+	function draw(arr, drawing = true)
+		{
+			let canvas = document.getElementById("draw"), 
+            context = canvas.getContext("2d", { alpha: false });
+
+			var cf = '#000000' //(document.getElementById('fone').value);
+
+            context.beginPath();	          
+			context.rect(0, 0, size, size);
+			context.fillStyle = cf;
+			context.fill();
+			context.stroke();
+
+			for (let i = 0; i < arr.length; i++) {
+				let obj = arr[i]
+
+				let color = obj.color 
+				let r = color.r;
+				let g = color.g;
+				let b = color.b;
+				
+				let col = `rgb(${r}, ${g}, ${b})`;
+				
+				if (drawing){
+					circle(context, scale * obj.S.x - cX, scale * obj.S.y - cY, scale * obj.r, col)
+					for (let j = 0; j < arr[i].history.length - 1; j++){
+						let history = arr[i].history;
+						line(context, 
+						scale * history[j].x - cX, scale * history[j].y - cY, 
+						scale * history[j + 1].x - cX, scale * history[j + 1].y - cY, 1, col)
+					}
+				}
+			}
+			
+            year++
+		}
+
+	const download = () => {
+		let data = {n, m, cell, sunPhase, rainPhase, arr, year, arr}
+		
+		const element = document.createElement('a');
+	
+		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + JSON.stringify(data));
+		element.setAttribute('download', 'evolution.json');
+		
+		element.style.display = 'none';
+		document.body.appendChild(element);
+		element.click();
+		document.body.removeChild(element);
+	} 
+		 
+		 const upload = (input) => {
+			let file = input.files[0];
+			let reader = new FileReader();
+
+			reader.readAsText(file);
+
+			reader.onload = function() {
+				({n, m, cell, sunPhase, rainPhase, arr, year, arr} = JSON.parse(reader.result));
+				drawing()
+			};
+			reader.onerror = function() {
+				console.log(reader.error);
+			};
+		 }
+
+		begin();
+
+
+	</script>
+</body>

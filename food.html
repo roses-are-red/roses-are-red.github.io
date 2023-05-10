@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<head>
+	<title>Еда</title>
+    <meta name="description" content="Сайт, троллящий людей">
+    <meta name="author" content="Vasa">
+	<script src="FoodData.json"></script>
+</head>
+
+<body>
+
+	<style>
+		div{
+			padding: 3px;
+		}
+		.pair{
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			width: 30%;
+		}
+
+table {
+    border-collapse: collapse;
+    text-align: center;
+}
+th, td:first-child {
+    background: #AFCDE7;
+    color: white;
+    padding: 10px 20px;
+}
+th, td {
+    border-style: solid;
+    border-width: 0 1px 1px 0;
+    border-color: white;
+}
+td {
+    background: #D8E6F3;
+}
+th:first-child, td:first-child {
+    text-align: left;
+}
+	</style>
+
+	<div class="main">
+		<div>Еда</div>
+		<form onsubmit="doit(); return false">
+			<div class="pair">
+				<div>Максимум калорий</div>
+				<div><input type="number" min="2000" max="10000" id="maxC" step="any" value="2500" required></div>
+			</div>
+			<div class="pair">
+				<div>Минимум калорий</div>
+				<div><input type="number" min="1000" max="2500" id="minC" step="any" value="1800" required></div>
+			</div>
+			<div class="pair">
+				<div>Максимум белков</div>
+				<div><input type="number" min="40" max="200" id="maxP" step="any" value="120" required></div>
+			</div>
+			<div class="pair">
+				<div>Минимум белков</div>
+				<div><input type="number" min="20" max="70" id="minP" step="any" value="65" required></div>
+			</div>
+			<div class="pair">
+				<div>Максимум жиров</div>
+				<div><input type="number" min="40" max="200" id="maxF" step="any" value="70" required></div>
+			</div>
+			<div class="pair">
+				<div>Минимум жиров</div>
+				<div><input type="number" min="20" max="60" id="minF" step="any" value="30" required></div>
+			</div>
+			<div class="pair">
+				<div>Название(на английском)</div>
+				<div><input type="text" id="name" pattern="[A-Za-z]{1,8}" required></div>
+			</div>
+			<div class="pair">
+				<div>Цена</div>
+				<div><input type="number" min="0" max="10000" id="cost" step="any" ></div>
+			</div>
+			<div class="pair">
+				<div>Порция(грамм)</div>
+				<div><input type="number" min="1" max="10000" id="portion" step="any" value="100" required></div>
+			</div>
+			<div  class="pair">
+				<div>Калории</div>
+				<div><input type="number" min="0" max="10000" id="calories" step="any" ></div>
+			</div>
+			<div  class="pair">
+				<div>Белки</div>
+				<div><input type="number" min="0" max="10000" id="proteins" step="any" ></div>
+			</div>
+			<div  class="pair">
+				<div>Жиры</div>
+				<div><input type="number" min="0" max="10000" id="fats" step="any" ></div>
+			</div>
+			<div  class="pair">
+				<div>Углеводы</div>
+				<div><input type="number" min="0" max="10000" id="carbohydrates" step="any" ></div>
+			</div>
+			<div  class="pair">
+				<div>Максимум грамм в день</div>
+				<div><input type="number" min="0" max="10000" id="max" step="any" ></div>
+			</div>
+			<div  class="pair">
+				<div>Минимум грамм в день</div>
+				<div><input type="number" min="0" max="10000" id="min" step="any" ></div>
+			</div>
+			<div>
+				<input type="checkbox" name="add" id="add">
+				<label for="add">Добавить</label>
+			</div>
+			<div>
+			<input type="submit" value="Добавить">
+			</div>
+		</form>
+		<div class = "text" id = "table">
+			
+		</div>
+
+		<div class = "text" id = "model">
+			
+		</div>
+
+		<div class = "text" id = "array">
+			
+		</div>
+
+	</div>
+	<script>
+		var arr = [
+{name : "bread",cost : "5.1500",calories : "180.0000",proteins : "8.0000",fats : "1.0000",carbohydrates : "49.0000",max : "2",min : "0",},
+{name : "potato",cost : "1.0000",calories : "76.0000",proteins : "2.0000",fats : "0.1600",carbohydrates : "17.0000",max : "4",min : "0",},
+{name : "buckwhea",cost : "12",calories : "308.0000",proteins : "12.0000",fats : "3.3000",carbohydrates : "57.1000",max : "3",min : "0",},
+{name : "rice",cost : "12.0000",calories : "333.0000",proteins : "7.0000",fats : "1.0000",carbohydrates : "74.0000",max : "3",min : "0",},
+{name : "chicken",cost : "32.0000",calories : "240.0000",proteins : "18.0000",fats : "18.0000",carbohydrates : "0.0000",max : "5",min : "0.5",},
+{name : "banana",cost : "7.0000",calories : "96.0000",proteins : "1.5000",fats : "0.5000",carbohydrates : "21.0000",max : "5",min : "2",},
+{name : "butter",cost : "55.0000",calories : "660.0000",proteins : "1.0000",fats : "72.0000",carbohydrates : "1.5000",max : "0.5",min : "0",},
+{name : "cheese",cost : "64.0000",calories : "400.0000",proteins : "23.0000",fats : "29.0000",carbohydrates : "0.0000",max : "1",min : "0.2",},
+{name : "lentils",cost : "12.0000",calories : "350.0000",proteins : "24.0000",fats : "1.0000",carbohydrates : "52.0000",max : "2",min : "0",},
+{name : "oil",cost : "12.0000",calories : "899.0000",proteins : "0.0000",fats : "99.0000",carbohydrates : "0.0000",max : "0.03",min : "0",},
+{name : "milk",cost : "6.0000",calories : "60.0000",proteins : "3.0000",fats : "3.2000",carbohydrates : "4.7000",max : "3",min : "2",},
+{name : "apple",cost : "10.0000",calories : "70.0000",proteins : "0.5000",fats : "0.2000",carbohydrates : "19.0000",max : "5",min : "1.5",},
+{name : "egg",cost : "7.0000",calories : "160.0000",proteins : "13.0000",fats : "11.0000",carbohydrates : "1.0000",max : "1",min : "0",},
+{name : "walnut",cost : "30.0000",calories : "650.0000",proteins : "14.0000",fats : "61.0000",carbohydrates : "10.0000",max : "2",min : "0",},
+]
+
+		var count = 0;
+
+		var	maxC, minC, maxP, minP, maxF, minF
+
+		function doit()
+		{
+			let section  = document.getElementById("table"); 
+			let writeArray  = document.getElementById("array"); 
+			let model  = document.getElementById("model"); 
+
+			maxC = document.getElementById("maxC").value; 
+			minC = document.getElementById("minC").value; 
+			maxP = document.getElementById("maxP").value; 
+			minP = document.getElementById("minP").value; 
+			maxF = document.getElementById("maxF").value;
+			minF = document.getElementById("minF").value;
+
+			let add = Number(document.getElementById("add").checked);
+
+			if (add){
+				let portion = Number(document.getElementById("portion").value);
+				let p = portion/100;
+
+				let name = (document.getElementById("name").value);
+				let cost = (Number(document.getElementById("cost").value) / p).toFixed(4);
+				let calories = (Number(document.getElementById("calories").value) / p).toFixed(4);
+				let proteins = (Number(document.getElementById("proteins").value) / p).toFixed(4);
+				let fats = (Number(document.getElementById("fats").value) / p).toFixed(4);
+				let carbohydrates = (Number(document.getElementById("carbohydrates").value) / p).toFixed(4);
+				let max = Number(document.getElementById("max").value/100);
+				let min = Number(document.getElementById("min").value/100);
+
+				arr[arr.length] = {name, cost, calories, proteins, fats, carbohydrates, max, min}
+			}
+			section.innerHTML = printTable(arr);
+			writeArray.innerHTML = printArray(arr);
+			model.innerHTML = printModel(arr)
+		}
+
+		const printTable = arr => {
+			let str = '<table>';
+
+			str += '<tr>'
+			for (let key in arr[0]) {
+				str += `<th>${key}</th>`
+			}
+			str += '</tr>'
+			arr.forEach(e => {
+				str += '<tr>'
+				for (let key in e) {
+					let value = e[key];
+					str += `<td>${value}</td>`
+				}
+				str += '</tr>'
+			})
+			str += '</table>';
+			return str;
+		}
+
+		const printArray = arr => {
+			let str = '<div>[<br>';
+
+			arr.forEach(e => {
+				str += '{'
+				for (let key in e) {
+					str += `${key} : "${e[key]}",`
+				}
+				str += '},<br>'
+			})
+			str += ']</div>';
+			return str;
+		}
+
+
+		const printModel = arr => {
+			let str = '<div>min ';
+			arr.forEach((e, i) => {
+				if (i != arr.length-1)
+					str += `${e.cost}${e.name} + `
+				else 
+					str += `${e.cost}${e.name}`
+			})
+			str += '<br>st<br> calories'
+			arr.forEach(e => {str += ` - ${e.calories}${e.name}`})
+			str += ' = 0 <br> proteins'
+			arr.forEach(e => {str += ` - ${e.proteins}${e.name}`})
+			str += ' = 0 <br> fats'
+			arr.forEach(e => {str += ` - ${e.fats}${e.name}`})
+			str += ' = 0 <br> carbohyd'
+			arr.forEach(e => {str += ` - ${e.carbohydrates}${e.name}`})
+			str += ' = 0 <br>'
+
+			let maxs = arr.filter(x => x.max > 0.001)
+			maxs.forEach(e => {str += `${e.name} <= ${e.max} <br>`})
+			let mins = arr.filter(x => x.min > 0.001)
+			mins.forEach(e => {str += `${e.name} >= ${e.min} <br>`})
+
+			str += `proteins >= ${minP}<br>proteins <= ${maxP}<br>`
+			str += `calories >= ${minC}<br>calories <= ${maxC}<br>`
+			str += `fats >= ${minF}<br>fats <= ${maxF}<br>`
+
+			str += '</div>';
+			return str;
+		}
+
+	</script>
+</body>

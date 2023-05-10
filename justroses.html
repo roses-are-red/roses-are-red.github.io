@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<head>
+	<title>Розы красивы, но ты красивей</title>
+    <meta name="description" content="Сайт, рисующий розы">
+    <meta name="author" content="Vasa">	
+    <link rel="icon" type="image/png" href="rose.png"/>
+</head>
+
+<body>
+
+	<style>
+		input{
+			font-size: 50px;
+
+		}
+		div{
+			width: 250px;
+			height: 260px;
+			margin: 20px;
+			text-align: center;	
+			font-size: 50px;
+		}
+		.main{
+			width: auto;
+			height: 650px;
+			background-color: rgb(255, 255, 255);
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+		}
+		.picture{
+			width: 4080px;
+			height: 4080px;
+			margin: 10px;
+			background-color: rgb(255, 255, 255);
+			border: 4px solid rgb(0, 0, 0);
+		}
+		.rigth-panel{
+			width: 200px;
+			height: 500px;
+			position: relative;
+		}
+		.buttons{
+			position: relative;
+			left: 0px;
+			top: 0px;
+			background-color: rgb(255, 255, 255);
+		}
+		
+	</style>
+
+	<div class="main">
+		<div class="rigth-panel" id ="rigth-panel">
+
+			<div class="buttons">
+				<input type="number" id = "a1" min = "1" max = "1000" value="8">
+				<input type="number" id = "b1" min = "1" max = "1000" value="3">  <br><br>
+				Цвет от <input type="color" id = "color-begin" value="#00ffff"> до 
+				<input type="color" id = "color-end" value="#0000ff"><br><br>
+
+				Фон <input type="color" id = "fone"><br><br>
+				<input type="button" onclick="create()" value="Создать"><br>
+				<input type="button" onclick="save()" value="Сохранить"><br>
+			</div>
+		</div>
+		<div class="picture" >
+			<canvas id="draw" width="4080" height="4080">
+				Этот элемент не поддерживается
+			</canvas>
+		</div>
+	</div>
+	<script>
+		
+const path = '';
+
+function getImage(canvas){
+    var imageData = canvas.toDataURL();
+    var image = new Image();
+    image.src = imageData;
+    return image;
+}
+ 
+function saveImage(image) {
+    var link = document.createElement("a");
+ 
+    link.setAttribute("href", image.src);
+    link.setAttribute("download", path+ Number(document.getElementById('a1').value)+'_'+Number(document.getElementById('b1').value)+'_'+document.getElementById('color-begin').value+'_'+ document.getElementById('color-end').value+'.png');
+    link.click();
+}
+
+function save(){
+    var image = getImage(document.getElementById("draw"));
+    saveImage(image);
+}
+
+const size = 4080;
+		const k = 360;
+
+		function create()
+		{
+			arr = [];
+			var a = Number(document.getElementById('a1').value);
+			var b = Number(document.getElementById('b1').value);
+			
+			var cb = document.getElementById('color-begin').value;
+			var ce = document.getElementById('color-end').value;
+
+			cbn = getColor(cb);
+			cen = getColor(ce);
+
+			var dr = (cen[0] - cbn[0])/k;
+			var dg = (cen[1] - cbn[1])/k;
+			var db = (cen[2] - cbn[2])/k;
+
+			//md(300, 300, a, b, cbn[0], cbn[1], cbn[2], dr, dg, db);
+
+			draw(a, b, cbn[0], cbn[1], cbn[2], cen[0], cen[1], cen[2]);
+		}
+
+		function getColor(c)
+		{
+			var r, g, b;
+			r = parseInt('0x' + c[1] + c[2], 16);
+			g = parseInt('0x' + c[3] + c[4], 16);
+			b = parseInt('0x' + c[5] + c[6], 16);
+			return [r, g, b];
+		}
+
+		function line(context, x1, y1, x2, y2, width, color)
+		{
+			context.beginPath(); 
+			context.lineWidth = width;
+			context.strokeStyle = color;
+
+          	context.moveTo(x1, y1);
+          	context.lineTo(x2, y2);
+
+			context.stroke();
+		}
+
+		function md(xс, yс, a, c, r, g, b, dr, dg, db)
+		{
+            const rd = 280;
+            let pnt = [];
+			for (var i = 0; i < 2*k; i++) 
+			{
+				var rad1 = ra(rd, c*i/k);
+				var rad2 = ra(rd, c*(i+1)/k);
+
+				if (arr.length == 0){
+
+						pnt.push([
+							xс+x(rad1, a*i/k), yс + y(rad1, a*i/k), 
+							xс+x(rad2, a*(i+1)/k), yс+y(rad2, a*(i+1)/k), 
+							//(r + (k-i)*dr), (g + (k-i)*dg),(b + (k-i)*db)
+							(r + 255*dr*rad1/rad1), (g + 255*dg*rad1/rad1),(b + 255*db*rad1/rad1)
+							]);
+					}
+				else{ 
+					/*
+					if (i >= k) 
+						pnt.push([xс+x(rad2,a*(i+1)/k), yс+y(rad2, a*(i+1)/k), xс+x(rad1, a*i/k), yс+y(rad1, a*i/k), 
+						(r + (k-i)*dr), (g + (k-i)*dg),(b + (k-i)*db)]);
+					else pnt.push([xс+x(rad2, a*(i+1)/k),yс+y(rad2, a*(i+1)/k),xс+x(rad1, a*i/k), yс+y(rad1, a*i/k), 
+						(r + i*dr), (g + i*dg),(b + i*db)]);*/
+					if (i >= k) 
+						pnt.push([xс+x(rad2,a*(i+1)/k), yс+y(rad2, a*(i+1)/k), xс+x(rad1, a*i/k), yс+y(rad1, a*i/k), 
+						(r + (k-i)*dr), (g + (k-i)*dg),(b + (k-i)*db)]);
+					else pnt.push([xс+x(rad2, a*(i+1)/k),yс+y(rad2, a*(i+1)/k),xс+x(rad1, a*i/k), yс+y(rad1, a*i/k), 
+						(r + i*dr), (g + i*dg),(b + i*db)]);
+				}
+			}	
+
+
+			arr.push(pnt);	
+		}
+
+		function draw(a, c, r1, g1, b1, r2, g2, b2)
+		{
+			var canvas = document.getElementById("draw"), 
+            context = canvas.getContext("2d");
+
+			var cf = (document.getElementById('fone').value);
+
+            context.beginPath();	          
+			context.rect(0, 0, size, size);
+			context.fillStyle = cf;
+			context.fill();
+			context.stroke();
+
+			const rd = size*0.48;
+			const xс = size/2;
+			const yс = size/2;
+
+			for (var i = 0; i < 2*k; i++) 
+			{
+				var rad1 = ra(rd, c*i/k);
+				var rad2 = ra(rd, c*(i+1)/k);
+
+				var r = Math.round(r1 * rad1/rd + r2 * (1 - rad1 / rd));
+				var g = Math.round(g1 * rad1/rd + g2 * (1 - rad1 / rd));
+				var b = Math.round(b1 * rad1/rd + b2 * (1 - rad1 / rd));
+
+				var col = "rgb(" + r + ", " + g + "," + b + ")";
+
+				line(context,
+					xс + x(rad1, a*i/k), yс + y(rad1, a*i/k), 
+					xс + x(rad2, a*(i+1)/k), yс + y(rad2, a*(i+1)/k), 					
+					5, col);
+			}
+		}
+
+		function x(r, a)
+		{
+			return r * Math.cos(Math.PI * a);
+		}
+
+		function y(r, a)
+		{
+			return r * Math.sin(Math.PI * a);
+		}
+
+		function ra(r, a)
+		{
+			return Math.abs(r*Math.cos(Math.PI*a));
+		}
+
+		function Rand(min, max)
+		{
+			var d = max - min;
+			return Number((max - d*Math.random()).toFixed(2));
+ 		}
+
+	</script>
+</body>

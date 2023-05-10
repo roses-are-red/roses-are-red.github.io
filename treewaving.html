@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<head>
+	<title>Не австралийский новый год</title>
+    <meta name="description" content="Сайт, рисующий деревья">
+    <meta name="author" content="Vasa">	
+    <link rel="icon" type="image/png" href="pine.png"/>
+</head>
+
+<body>
+
+	<style>
+		div{
+			width: 250px;
+			height: 260px;
+			margin: 20px;
+			text-align: center;	
+		}
+		.main{
+			width: 800px;
+			height: 650px;
+			background-color: rgb(255, 255, 255);
+		}
+		.picture{
+			width: 600px;
+			height: 600px;
+			margin: 10px;
+			background-color: rgb(255, 255, 255);
+			border: 4px solid rgb(0, 0, 0);
+		}
+		.rigth-panel{
+			width: 200px;
+			height: 500px;
+			position: relative;
+			left: 600px;
+			top: -500px;
+		}
+		.buttons{
+			position: relative;
+			left: 0px;
+			top: 0px;
+			background-color: rgb(255, 255, 255);
+		}
+		
+	</style>
+
+	<div class="main">
+		<div class="picture"  mouseover = "checkLinePointer(event);">
+			<canvas id="draw" width="600" height="600">
+				Этот элемент не поддерживается
+			</canvas>
+		</div>
+
+		<div class="rigth-panel" id ="rigth-panel">
+
+			<div class="buttons">
+				n <input type="number" id = "n" min = "1" max = "20" value="9"><br><br>
+				a 
+				<input type="number" id = "a1" min = "0" max = "90" value="90">
+				<input type="number" id = "a2" min = "0" max = "90" value="90"> <br><br>
+				b 
+				<input type="number" id = "b1" min = "0" max = "90" value="30">
+				<input type="number" id = "b2" min = "0" max = "90" value="30"> <br><br>
+				p 
+				<input type="number" id = "p1" min = "0" max = "100" value="100">
+				<input type="number" id = "p2" min = "0" max = "100" value="100"> <br><br>
+				Цвет от 
+				<input type="color" id = "color-begin1" value="#0000ff"> до 
+				<input type="color" id = "color-end1" value="#00ffff"><br><br>
+				Цвет от 
+				<input type="color" id = "color-begin2" value="#ff00ff"> до 
+				<input type="color" id = "color-end2" value="#0000ff"><br><br>
+				Фон 
+				<input type="color" id = "fone"><br><br>
+				<input type="button" onclick="create()" value="Создать"><br><br>
+				<input type="range" id = "t" min="0" max="100" step="1" oninput="draw()" value="0"> 
+
+			</div>
+	</div>
+	<div class="history" id = "history">
+	<script>
+		
+		let arr = [];
+		const max = 100;
+
+		function create()
+		{
+			arr = [[], []];
+
+			var n = Number(document.getElementById('n').value);
+			var a1 = Number(document.getElementById('a1').value);
+			var a2 = Number(document.getElementById('a2').value);
+			var b1 = Number(document.getElementById('b1').value);
+			var b2 = Number(document.getElementById('b2').value);
+			var p1 = Number(document.getElementById('p1').value);
+			var p2 = Number(document.getElementById('p2').value);
+			var p = 100;
+			var cb1 = document.getElementById('color-begin1').value;
+			var cb2 = document.getElementById('color-begin2').value;
+			var ce1 = document.getElementById('color-end1').value;
+			var ce2 = document.getElementById('color-end2').value;
+
+			cbn = getColor(cb1);
+			cen = getColor(ce1);
+
+			var dr = (cen[0] - cbn[0])/n;
+			var dg = (cen[1] - cbn[1])/n;
+			var db = (cen[2] - cbn[2])/n;
+
+			three(300, 550, 120, a1, n, p, b1, cbn[0], cbn[1], cbn[2], dr, dg, db, 0, p1, p2);
+
+			cbn = getColor(cb2);
+			cen = getColor(ce2);
+
+			var dr = (cen[0] - cbn[0])/n;
+			var dg = (cen[1] - cbn[1])/n;
+			var db = (cen[2] - cbn[2])/n;
+
+			three(300, 550, 120, a2, n, p, b2, cbn[0], cbn[1], cbn[2], dr, dg, db, 1, p1, p2);
+
+			draw();
+		}
+
+		function getColor(c)
+		{
+			var r, g, b;
+			r = parseInt('0x' + c[1] + c[2], 16);
+			g = parseInt('0x' + c[3] + c[4], 16);
+			b = parseInt('0x' + c[5] + c[6], 16);
+			return [r, g, b];
+		}
+
+		function line(context, x1, y1, x2, y2, width, color)
+		{
+			context.beginPath(); 
+			context.lineWidth = width;
+			context.strokeStyle = color;
+
+          	context.moveTo(x1, y1);
+          	context.lineTo(x2, y2);
+
+			context.stroke();
+		}
+
+		function three(x, y, l, a, n, p, beta, r, g, b, dr, dg, db, f, pl, pr)
+		{
+			var alfa = 5; 
+			var rand = 10;
+			if (n > 0)
+			{				
+             	var xe = x+rx(l, a);
+                var ye = y-ry(l, a);
+				arr[f].push([x, y, xe, ye, n, r, g, b]);
+
+				var nr = (r+dr);
+				var ng = (g+dg);
+				var nb = (b+db);
+
+				three(xe, ye, 0.8*l, a + Rand(-alfa, alfa), n-1, p, beta, nr, ng, nb, dr, dg, db, f, pl, pr);
+
+				var hr = Rand(0.2, 0.8);
+				var hl = Rand(0.2, 0.8);
+				var dl = Rand(0.5, 0.7);
+
+				if (Rand(0, 100) < pr)
+				three(x+hr*rx(l, a), y-hr*ry(l, a), 
+					dl*l, a + (beta+Rand(-rand, rand)), n-1, 
+					p, beta, nr, ng, nb, dr, dg, db, f, pl, pr);
+
+				if (Rand(0, 100) < pl)
+				three(x+hl*rx(l, a), y-hl*ry(l, a),
+					dl*l,  a - (beta+Rand(-rand, rand)), n-1, 
+					p, beta, nr, ng, nb, dr, dg, db, f, pl, pr);
+
+			}
+		}
+
+		function draw()
+		{
+			var canvas = document.getElementById("draw"), 
+                context = canvas.getContext("2d");
+            var cf = (document.getElementById('fone').value);
+
+            context.beginPath();	          
+			context.rect(0, 0, 600, 600);
+			context.fillStyle = cf;
+			context.fill();
+			context.stroke();
+            
+            var t = document.getElementById("t").value/max; 
+            var d = 1 - t;
+
+            for (var i = 0; i < arr[0].length; i++)
+            {
+            	var r = Math.round(arr[0][i][5] * d + arr[1][i][5] * t);
+				var g = Math.round(arr[0][i][6] * d + arr[1][i][6] * t);
+				var b = Math.round(arr[0][i][7] * d + arr[1][i][7] * t);
+
+				var col = "rgb(" + r + ", " + g + "," + b + ")";
+
+				line(context,
+					d*arr[0][i][0]+t*arr[1][i][0],  d*arr[0][i][1]+t*arr[1][i][1],
+					d*arr[0][i][2]+t*arr[1][i][2],  d*arr[0][i][3]+t*arr[1][i][3],
+					arr[0][i][4], col);
+            }
+		}
+
+
+		function rx(l, a)
+		{
+			return l*Math.cos(a*Math.PI/180);			
+		}
+		function ry(l, a)
+		{
+			return l*Math.sin(a*Math.PI/180);			
+		}
+
+		function Rand(min=0, max=100)
+		{
+			var d = max - min;
+			return Number((max - d*Math.random()).toFixed(2));
+ 		}
+
+	</script>
+</body>

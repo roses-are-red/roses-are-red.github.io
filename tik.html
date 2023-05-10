@@ -1,0 +1,52 @@
+<style>
+	.root{
+		padding: 20px;
+	}
+	.flex {
+		display: flex;
+	}
+
+	.box {
+		padding: 20px;
+		cursor: pointer;
+		border: 1px solid #ffffff;
+	}
+
+	.on {
+		background-color:black;
+	}
+
+	.off {
+		background-color:blue;
+	}
+</style>
+
+<div id="root" class="root">
+
+</div>
+
+<script>
+	const n = 4;
+
+	let arr = Array(n).fill(Array(n)).map(x => x.fill(1).map(x => x))
+
+	let doc = document.getElementById('root')
+
+	const onClick = (i, j) => {
+		arr[i][j] = -arr[i][j]
+		arr[i] = arr[i].map(x => -x)
+		arr.forEach((x) => {
+			x[j] = -x[j]
+			debugger
+		})
+
+		let str = arr.reduce((s, v, i) => s + `<div class='flex'> ${v.reduce((s2, v2, j) => s2 + `<div class='box ${v2 === 1 ? 'on' : 'off'}' onClick="onClick(${i}, ${j})"><span></span></div>`, '')}</div>`, '')
+
+		doc.innerHTML = str;
+	}
+
+	let str = arr.reduce((s, v, i) => s + `<div class='flex'> ${v.reduce((s2, v2, j) => s2 + `<div class='box  ${v2 === 1 ? 'on' : 'off'}' onClick="onClick(${i}, ${j})"><span></span></div>`, '')}</div>`, '')
+
+	doc.innerHTML = str;
+
+</script>

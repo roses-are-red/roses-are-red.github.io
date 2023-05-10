@@ -1,0 +1,133 @@
+<div>
+    <div>
+        <textarea id="text"></textarea>
+        <input type="submit" onclick="onForm()">
+    </div>
+    <div id="result">
+        
+    </div>
+</div>
+
+<script>
+
+    
+	let vowels = ['а', 'е', 'ё', 'и', 'о', 'у', 'ы', 'э', 'ю', 'я', ]
+
+    let sonorous = ['н', 'р', 'й', 'л', 'м',]
+
+    const getIndexVowels = str => {
+        let min = 1000000;
+        vowels.forEach( x => min = Math.min(min, str.indexOf(x) !== -1 ? str.indexOf(x) : 1000000) )
+
+        if (min == 1000000) return -1;
+        
+        return min
+    }
+
+    const getSyllables = (str) => {
+        let s = str.toLowerCase();
+        let syllables = [];
+        let i = getIndexVowels(s) 
+        while (i !== -1) {
+            let syllable = '';
+            let next = getIndexVowels(s.substring(i + 1));
+            if (next === -1){
+                syllable = s;
+                s = '';
+            } else {
+                if (sonorous.indexOf(s[i + 1]) !== -1 && next > 1){
+                    if (s[i + 2] === 'ь' || s[i + 2] === 'ъ') {
+                        syllable = s.substring(0, i + 3)
+                        s = s.substring(i + 3)							
+                    } else {
+                        syllable = s.substring(0, i + 2)
+                        s = s.substring(i + 2)	
+                    }
+                } else {
+                    syllable = s.substring(0, i + 1)
+                    s = s.substring(i + 1)
+                }
+            }
+            
+            syllables.push(syllable)
+            i = getIndexVowels(s);
+        }
+        return syllables;
+    }
+
+    function tgtrimm(str) {
+        let ars = str.replace(/[^А-Яа-яЁё]/gi,'').replace(/\s+/gi,', '); 
+        return ars;
+    }
+
+    let split = str => {
+        let syllablesStatistics = [];
+        let arr = str.replace('\n', ' ').split(' ');
+        arr.forEach(x => {
+            let str = tgtrimm(x);
+            syllables = getSyllables(str);
+            syllables.forEach( y => {
+                let syllable = syllablesStatistics.find( z => z.syllable === y )
+                if (syllable) {
+                    syllable.cnt++
+                } else {
+                    syllablesStatistics.push({syllable : y, cnt : 1})
+                }
+            })
+        })
+
+        return syllablesStatistics;
+    }
+
+    const onForm = () => {
+        let str = document.getElementById('text').value
+        let syllablesStatistics = split(str);
+
+        document.getElementById('result').innerHTML = '<table><tr><td>Слог</td><td>Количество</td></tr>' + syllablesStatistics.reduce((s, x) => s + `<tr><td>${x.syllable}</td><td>${x.cnt}</td></tr>`, '') + '</table>'
+        return false;
+    }
+
+    let f = str => {
+        let arr = [];
+        str.toLowerCase()
+     
+        str.replace(',', '')
+        str.replace('.', '')
+        str.replace('!', '')
+        str.replace('?', '')
+
+        let current = str.charCodeAt(0);
+        for (let i = 1; i < str.length; i++) {
+            let next = str.charCodeAt(i);
+            if (!arr[current]) arr[current] = [];
+
+            if (!arr[current][next]) arr[current][next] = 0;
+
+            arr[current][next]++;
+            
+            current = next;
+        }
+
+        return arr;
+    }
+
+    const get = (str) => {
+        let arr = f(str);
+
+        let charts = [];
+        arr.forEach( (x, i) => {
+            if (x) {
+                let obj = {char : String.fromCharCode(i), nextChar : []}
+                x.forEach( (y, j) => {
+                    if (y) {
+                        obj.nextChar.push({char : String.fromCharCode(j), cnt : y})
+                    }
+                } )
+                charts.push(obj);
+            }
+        } )
+
+        return charts;
+    }
+
+</script>

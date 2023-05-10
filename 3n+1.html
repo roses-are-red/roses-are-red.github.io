@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<head>
+	<title>3n + 1</title>
+    <meta name="description" content="Сайт, троллящий людей">
+    <meta name="author" content="Vasa">
+</head>
+
+<body>
+
+	<style>
+		div{
+			text-align: center;	
+			padding: 3px;
+		}
+	</style>
+
+	<div class="main">
+		<div class="aside-block" style="background-color: #ffffff">    
+                <p style="text-align: center;">
+	 			<a href="https://vk.com/club174554107"><img width="50" src="/upload/resize_cache/medialibrary/12f/140_105_1/vk.png" height="50"></a>
+				<a href="https://www.instagram.com/dobriansky_okrug/"><img width="50" src="/upload/resize_cache/medialibrary/5b2/140_105_1/in.png" height="50"></a>
+				<a href="https://ok.ru/profile/577294619268/"><img width="50" src="/upload/resize_cache/medialibrary/e31/140_105_1/od.jpg" height="50"></a>
+				</p>
+				<p style="text-align: center;">
+				<a href="https://www.strana2020.ru/"><img src="/upload/resize_cache/medialibrary/131/140_105_1/vpn.png"></a>
+				</p>
+        </div>
+		<div>3n + 1</div>
+		<div>Ну давай, введи своё число, ведь ты же такой умный, ты непременно угадаешь</div>
+		<form onsubmit="doit(); return false">
+			<div>
+			<input type="number" min="1" max="10000000000000000" name = "num" id="n" required>
+			</div>
+			<div>
+			<input type="submit" value="Ща порешаем">
+			</div>
+		</form>
+		<div class = "text" id = "text">
+			
+		</div>
+	</div>
+	<script>
+		
+		var count = 0;
+
+		function doit()
+		{
+			let section  = document.getElementById("text"); 
+
+			let answer = "";
+
+			let n = Number(document.getElementById("n").value); 
+
+			while (n > 1) {
+				answer += n + " -> ";
+				n = n % 2 === 0 ? n / 2 : 3 * n + 1; 
+			}
+			answer += n;
+
+			section.innerHTML = answer;
+		}
+
+
+	</script>
+</body>
